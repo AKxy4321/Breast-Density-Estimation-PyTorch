@@ -66,10 +66,10 @@ def create_data_generators(train_dir, val_dir, input_size, batch_size):
 
 
 def main():
-    name = "Dataset_2"
+    name = "inb"
     train_dir = os.path.join(".", "dataset", f"{name}_split", "train")
     val_dir = os.path.join(".", "dataset", f"{name}_split", "validation")
-    batch_size = 16
+    batch_size = 64
     input_size = (224, 224)
     num_epochs = 200
     patience = 10
