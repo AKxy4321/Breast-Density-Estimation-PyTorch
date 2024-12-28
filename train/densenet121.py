@@ -72,10 +72,8 @@ def create_data_generators(train_dir, val_dir, input_size, batch_size):
 
 def main():
     name = "Dataset_2_cropped"
-    name2 = "test_inb_cropped"
-    name2 = name
     train_dir = os.path.join(".", "dataset", f"{name}_split", "train")
-    val_dir = os.path.join(".", "dataset", f"{name2}_split", "validation")
+    val_dir = os.path.join(".", "dataset", f"{name}_split", "validation")
     batch_size = 64
     input_size = (224, 224)
     num_epochs = 200
@@ -155,7 +153,7 @@ def main():
         if val_loss < best_val_loss:
             print(f"Validation loss improved from {best_val_loss} to {val_loss}. Saving the model...")
             best_val_loss = val_loss
-            torch.save(model.state_dict(), os.path.join('.', 'weights', f"{name}_best_model.pth"))
+            torch.save(model.state_dict(), os.path.join('.', 'weights', f"{name}_best_densenet121.pth"))
             patience_counter = 0
         else:
             patience_counter += 1

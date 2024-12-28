@@ -1,0 +1,9 @@
+**/__pycache__
+
+# Ignore all files in the weights and dataset folders
+weights/*
+dataset/*
+
+# Exclude specific folders from being ignored
+!weights/
+!dataset/
