@@ -1,5 +1,6 @@
 from torchvision.datasets import ImageFolder
 from torch.utils.data import DataLoader
+from multiprocessing import cpu_count
 from densenet121 import create_model
 from torchvision import transforms
 import torch.nn as nn
@@ -24,8 +25,9 @@ def create_data_generator(test_dir, input_size, batch_size):
         transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]),
     ])
 
+    prefetch_factor = 4
     test_dataset = ImageFolder(root=test_dir, transform=transform)
-    test_loader = DataLoader(test_dataset, batch_size=batch_size, shuffle=False, num_workers=6)
+    test_loader = DataLoader(test_dataset, batch_size=batch_size, shuffle=False, num_workers=cpu_count(), pin_memory=True, prefetch_factor=prefetch_factor)
 
     return test_loader, test_dataset.classes
 

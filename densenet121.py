@@ -3,6 +3,7 @@ from torch.optim.lr_scheduler import LambdaLR
 from torchvision.datasets import ImageFolder
 from torchvision import models, transforms
 from torch.utils.data import DataLoader
+from multiprocessing import cpu_count
 import torch.optim as optim
 import torch.nn as nn
 from tqdm import tqdm  
@@ -13,6 +14,7 @@ import os
 def set_device():
     if torch.cuda.is_available():
         device = torch.device("cuda")
+        torch.backends.cudnn.benchmark = True
         print("GPU is available and will be used.")
     else:
         device = torch.device("cpu")
@@ -52,6 +54,7 @@ def create_model(num_classes):
 def create_data_generators(train_dir, val_dir, input_size, batch_size):
     transform = transforms.Compose([
         transforms.Resize(input_size),
+        transforms.RandomHorizontalFlip(), 
         transforms.ToTensor(),
         transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]),
     ])
@@ -59,8 +62,10 @@ def create_data_generators(train_dir, val_dir, input_size, batch_size):
     train_dataset = ImageFolder(root=train_dir, transform=transform)
     val_dataset = ImageFolder(root=val_dir, transform=transform)
 
-    train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True, num_workers=6)
-    val_loader = DataLoader(val_dataset, batch_size=batch_size, shuffle=False, num_workers=6)
+    prefetch_factor = 16
+    train_loader = DataLoader(
+    train_dataset, batch_size=batch_size, shuffle=True, num_workers=cpu_count(), pin_memory=True, prefetch_factor=prefetch_factor)
+    val_loader = DataLoader(val_dataset, batch_size=batch_size, shuffle=False, num_workers=cpu_count(), pin_memory=True, prefetch_factor=prefetch_factor)
 
     return train_loader, val_loader, train_dataset.classes
 
@@ -105,7 +110,6 @@ def main():
         train_loss = 0
         train_correct = 0
 
-        # Initialize the progress bar for training
         with tqdm(total=len(train_loader), desc=f"Epoch {epoch+1}/{num_epochs}", unit="batch") as pbar:
             for images, labels in train_loader:
                 images, labels = images.to(device), labels.to(device)
@@ -141,12 +145,10 @@ def main():
         train_accuracy = train_correct / len(train_loader.dataset)
         val_accuracy = val_correct / len(val_loader.dataset)
 
-        # Print results at the end of each epoch
         print(f"Epoch {epoch + 1}/{num_epochs}, Train Loss: {train_loss:.4f}, Train Acc: {train_accuracy:.4f}, \
                 Val Loss: {val_loss:.4f}, Val Acc: {val_accuracy:.4f}")
 
-        # Step the ReduceLROnPlateau scheduler based on validation loss
-        scheduler.step(val_loss)
+        scheduler.step()
 
         if val_loss < best_val_loss:
             print(f"Validation loss improved from {best_val_loss} to {val_loss}. Saving the model...")
