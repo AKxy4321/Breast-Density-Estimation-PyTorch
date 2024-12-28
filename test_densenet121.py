@@ -1,11 +1,12 @@
-import os
-import torch
-import torch.nn as nn
-from torch.utils.data import DataLoader
-from torchvision import transforms
 from torchvision.datasets import ImageFolder
+from torch.utils.data import DataLoader
 from densenet121 import create_model
+from torchvision import transforms
+import torch.nn as nn
 from tqdm import tqdm
+import torch
+import os
+
 
 def set_device():
     if torch.cuda.is_available():
@@ -30,7 +31,7 @@ def create_data_generator(test_dir, input_size, batch_size):
 
 def load_model(model_path, num_classes, device):
     model = create_model(num_classes)  # Ensure this function matches the one in your training script
-    model.load_state_dict(torch.load(model_path))
+    model.load_state_dict(torch.load(model_path, weights_only=True))  # Use weights_only=True
     model = model.to(device)
     model.eval()
     return model
@@ -53,7 +54,7 @@ def test_model(model, test_loader, device):
                 test_correct += (outputs.argmax(dim=1) == labels).sum().item()
 
                 # Update progress bar with current test loss and accuracy
-                pbar.set_postfix({'test_loss': test_loss / (total_samples + 1e-8),
+                pbar.set_postfix({'test_loss': test_loss / (test_correct + 1e-8),
                                   'test_acc': test_correct / (total_samples + 1e-8)})
                 pbar.update(1)
 
@@ -63,7 +64,8 @@ def test_model(model, test_loader, device):
 
 def main():
     name = "Dataset_2"
-    test_dir = os.path.join(".", "dataset", f"{name}_split", "test")  # Directory for test data
+    name2 = "test_inb"
+    test_dir = os.path.join(".", "dataset", f"{name2}_split", "test")  # Directory for test data
     batch_size = 16
     input_size = (224, 224)
 
@@ -75,7 +77,7 @@ def main():
 
     print(f"Class labels: {class_labels}")
 
-    model_path = f"{name}_best_model.pth"  # Path to the best saved model after training
+    model_path = os.path.join('.', 'weights', f"{name}_best_model.pth")  # Path to the best saved model after training
     model = load_model(model_path, num_classes, device)
 
     print("Testing the model...")
