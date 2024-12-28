@@ -1,3 +1,6 @@
+import sys
+import os
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 from torchvision.datasets import ImageFolder
 from torch.utils.data import DataLoader
 from multiprocessing import cpu_count
@@ -6,7 +9,6 @@ from torchvision import transforms
 import torch.nn as nn
 from tqdm import tqdm
 import torch
-import os
 
 
 def set_device():
