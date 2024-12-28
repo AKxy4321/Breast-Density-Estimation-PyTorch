@@ -29,7 +29,7 @@ def freeze_layers(model, freeze_all=True):
 
 def create_model(num_classes):
     print("Loading the pre-trained model...")
-    base_model = models.densenet121(weights=DenseNet121_Weights.IMAGENET1K_V1)  # Fix deprecated 'pretrained' usage
+    base_model = models.densenet121(weights=DenseNet121_Weights.IMAGENET1K_V1) 
     freeze_layers(base_model, freeze_all=True)
 
     print("Adding custom layers...")
@@ -62,7 +62,7 @@ def create_data_generators(train_dir, val_dir, input_size, batch_size):
     train_dataset = ImageFolder(root=train_dir, transform=transform)
     val_dataset = ImageFolder(root=val_dir, transform=transform)
 
-    prefetch_factor = 16
+    prefetch_factor = 4
     train_loader = DataLoader(
     train_dataset, batch_size=batch_size, shuffle=True, num_workers=cpu_count(), pin_memory=True, prefetch_factor=prefetch_factor)
     val_loader = DataLoader(val_dataset, batch_size=batch_size, shuffle=False, num_workers=cpu_count(), pin_memory=True, prefetch_factor=prefetch_factor)
@@ -71,9 +71,11 @@ def create_data_generators(train_dir, val_dir, input_size, batch_size):
 
 
 def main():
-    name = "inb"
+    name = "Dataset_2_cropped"
+    name2 = "test_inb_cropped"
+    name2 = name
     train_dir = os.path.join(".", "dataset", f"{name}_split", "train")
-    val_dir = os.path.join(".", "dataset", f"{name}_split", "validation")
+    val_dir = os.path.join(".", "dataset", f"{name2}_split", "validation")
     batch_size = 64
     input_size = (224, 224)
     num_epochs = 200
@@ -123,8 +125,8 @@ def main():
                 train_correct += (outputs.argmax(dim=1) == labels).sum().item()
 
                 # Update progress bar with the current training loss and accuracy
-                pbar.set_postfix({'train_loss': train_loss / (len(train_loader.dataset) + 1e-8),
-                                  'train_acc': train_correct / (len(train_loader.dataset) + 1e-8)})
+                pbar.set_postfix({'train_loss': train_loss / (len(train_loader.dataset)),
+                                  'train_acc': train_correct / (len(train_loader.dataset))})
                 pbar.update(1)  # Move the progress bar forward by 1 step
 
         model.eval()

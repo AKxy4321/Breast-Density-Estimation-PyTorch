@@ -25,7 +25,7 @@ def create_data_generator(test_dir, input_size, batch_size):
         transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]),
     ])
 
-    prefetch_factor = 4
+    prefetch_factor = 2
     test_dataset = ImageFolder(root=test_dir, transform=transform)
     test_loader = DataLoader(test_dataset, batch_size=batch_size, shuffle=False, num_workers=cpu_count(), pin_memory=True, prefetch_factor=prefetch_factor)
 
@@ -65,8 +65,8 @@ def test_model(model, test_loader, device):
     print(f"Test Loss: {test_loss:.4f}, Test Accuracy: {test_accuracy:.4f}")
 
 def main():
-    name = "Dataset_2"
-    name2 = "test_inb"
+    name = "Dataset_2_cropped"
+    name2 = "test_inb_cropped"
     test_dir = os.path.join(".", "dataset", f"{name2}_split", "test")  # Directory for test data
     batch_size = 16
     input_size = (224, 224)
